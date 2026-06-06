@@ -1,3 +1,4 @@
+import MuscleMap from "./components/MuscleMap";
 import "./App.css";
 import { useEffect, useState } from "react";
 
@@ -26,6 +27,7 @@ function App() {
   const [reps, setReps] = useState("");
   const [sets, setSets] = useState("");
   const [tab, setTab] = useState("training");
+  const [showAdd, setShowAdd] = useState(false);
 
   const parts = ["胸", "背中", "肩", "腕", "脚", "腹筋"];
 
@@ -46,6 +48,7 @@ function App() {
     setWeight("");
     setReps("");
     setSets("");
+    setShowAdd(false);
   }
 
   function trained(partName: string) {
@@ -77,80 +80,63 @@ function App() {
               </button>
             </div>
           ))}
+          {showAdd && (
+  <div className="add-form">
+    <h2>追加</h2>
 
-          <h2>追加</h2>
+    <input
+      placeholder="種目名"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+    />
 
-          <input
-            placeholder="種目名"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+    <div className="part-buttons">
+      {parts.map((p) => (
+        <button
+          key={p}
+          className={part === p ? "selected" : ""}
+          onClick={() => setPart(p)}
+        >
+          {p}
+        </button>
+      ))}
+    </div>
 
-          <div className="part-buttons">
-            {parts.map((p) => (
-              <button
-                key={p}
-                className={part === p ? "selected" : ""}
-                onClick={() => setPart(p)}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
+    <input
+      placeholder="重量"
+      value={weight}
+      onChange={(e) => setWeight(e.target.value)}
+    />
 
-          <input
-            placeholder="重量"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
+    <input
+      placeholder="回数"
+      value={reps}
+      onChange={(e) => setReps(e.target.value)}
+    />
 
-          <input
-            placeholder="回数"
-            value={reps}
-            onChange={(e) => setReps(e.target.value)}
-          />
+    <input
+      placeholder="セット数"
+      value={sets}
+      onChange={(e) => setSets(e.target.value)}
+    />
 
-          <input
-            placeholder="セット数"
-            value={sets}
-            onChange={(e) => setSets(e.target.value)}
-          />
-
-          <button onClick={addTraining}>保存</button>
+    <button onClick={addTraining}>保存</button>
+  </div>
+)}
         </>
       )}
+<button
+  className="add-button"
+  onClick={() => setShowAdd(true)}
+>
+  ＋
+</button>
 
       {tab === "body" && (
         <div className="body-page">
           <h1>Today</h1>
 
-            <div className="body-map">
-            <div className="head">頭</div>
-
-            <div className={trained("肩") ? "map-part active" : "map-part"}>
-              肩
-            </div>
-
-            <div className={trained("胸") ? "map-part active" : "map-part"}>
-              胸
-            </div>
-
-            <div className={trained("背中") ? "map-part active" : "map-part"}>
-              背中
-            </div>
-
-            <div className={trained("腕") ? "map-part active" : "map-part"}>
-              腕
-            </div>
-
-            <div className={trained("腹筋") ? "map-part active" : "map-part"}>
-              腹筋
-            </div>
-
-            <div className={trained("脚") ? "map-part active" : "map-part"}>
-              脚
-            </div>
-          </div>
+           <MuscleMap trained={trained} />
 
           <h2>鍛えた部位</h2>
 
