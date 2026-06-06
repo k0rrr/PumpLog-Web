@@ -124,7 +124,33 @@ function App() {
         <div className="body-page">
           <h1>Today</h1>
 
-          <div className="body-icon">🧍</div>
+            <div className="body-map">
+            <div className="head">頭</div>
+
+            <div className={trained("肩") ? "map-part active" : "map-part"}>
+              肩
+            </div>
+
+            <div className={trained("胸") ? "map-part active" : "map-part"}>
+              胸
+            </div>
+
+            <div className={trained("背中") ? "map-part active" : "map-part"}>
+              背中
+            </div>
+
+            <div className={trained("腕") ? "map-part active" : "map-part"}>
+              腕
+            </div>
+
+            <div className={trained("腹筋") ? "map-part active" : "map-part"}>
+              腹筋
+            </div>
+
+            <div className={trained("脚") ? "map-part active" : "map-part"}>
+              脚
+            </div>
+          </div>
 
           <h2>鍛えた部位</h2>
 

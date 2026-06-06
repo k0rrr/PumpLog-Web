@@ -104,3 +104,31 @@ button {
 .calendar-page {
   padding-top: 40px;
 }
+
+.body-map {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.head {
+  grid-column: 2;
+  background: #4b5563;
+  padding: 14px;
+  border-radius: 50px;
+  text-align: center;
+}
+
+.map-part {
+  background: #374151;
+  padding: 20px;
+  border-radius: 18px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.map-part.active {
+  background: #2563eb;
+  box-shadow: 0 0 20px #2563eb;
+}
