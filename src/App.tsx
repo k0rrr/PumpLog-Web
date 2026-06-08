@@ -95,10 +95,81 @@ function App() {
     setShowAdd(false);
   }
 
-  function trained(partName: string) {
-    return todaySessions.some((session) => session.part === partName);
-  }
+   function trained(partName: string) {
+      const todayDate = new Date();
 
+      return sessions.some((session) => {
+        const sessionDate = new Date(session.date);
+
+        const diff =
+          (todayDate.getTime() - sessionDate.getTime()) /
+          (1000 * 60 * 60 * 24);
+
+        return diff <= 7 && session.part === partName;
+      });
+    } 
+    function isWithin7Days(date: string) {
+      const todayDate = new Date();
+      const sessionDate = new Date(date);
+
+      const diff =
+        (todayDate.getTime() - sessionDate.getTime()) /
+        (1000 * 60 * 60 * 24);
+
+      return diff <= 7;
+    }
+    function countPart(partName: string) {
+  return sessions.filter(
+    (session) =>
+      session.part === partName &&
+      isWithin7Days(session.date)
+  ).length;
+}
+
+    function maxPartCount() {
+      return Math.max(
+        ...parts.map((part) => countPart(part)),
+        1
+      );
+    }
+
+    function getWeakParts() {
+  return parts.filter(
+    (part) => countPart(part) === 0
+  );
+}
+
+function groupedSessions() {
+  return sessions.reduce<Record<string, TrainingSession[]>>(
+    (groups, session) => {
+      if (!groups[session.date]) {
+        groups[session.date] = [];
+      }
+
+      groups[session.date].push(session);
+      return groups;
+    },
+    {}
+  );
+}
+function getPRs() {
+  const prs: Record<string, number> = {};
+
+  sessions.forEach((session) => {
+    session.exercises.forEach((exercise) => {
+      const weight = Number(exercise.weight);
+
+      if (
+        !prs[exercise.name] ||
+        weight > prs[exercise.name]
+      ) {
+        prs[exercise.name] = weight;
+      }
+    });
+  });
+
+  return prs;
+}
   return (
     <div className="app">
       <h1>PumpLog 💪</h1>
@@ -127,6 +198,20 @@ function App() {
           {showAdd && (
             <div className="add-form">
               <h2>メニューから記録</h2>
+
+              {menus.length === 0 && (
+                <div className="training-card">
+                  <p>まだメニューがありません。</p>
+                  <button
+                    onClick={() => {
+                      setTab("menu");
+                      setShowAdd(false);
+                    }}
+                  >
+                    メニューを作る
+                  </button>
+                </div>
+              )}
 
               {menus.map((menu, index) => (
                 <button key={index} onClick={() => setSelectedMenu(menu)}>
@@ -180,6 +265,9 @@ function App() {
                   <button onClick={saveMenuRecords}>メニューを記録</button>
                 </div>
               )}
+              <button onClick={() => setShowAdd(false)}>
+                閉じる
+              </button>
             </div>
           )}
 
@@ -225,24 +313,66 @@ function App() {
 
       {tab === "body" && (
         <div className="body-page">
-          <h1>Today</h1>
+          <h1>7Days</h1>
           <MuscleMap trained={trained} />
         </div>
       )}
+      {tab === "analysis" && (
+        <div className="analysis-page">
+          <h1>7Days Analysis</h1>
 
+          {parts.map((part) => {
+            const count = countPart(part);
+            const percent = (count / maxPartCount()) * 100;
+
+            return (
+              <div className="training-card" key={part}>
+                <div className="analysis-row">
+                  <h3>{part}</h3>
+                  <p>{count}回</p>
+                </div>
+
+                <div className="bar-bg">
+                  <div
+                    className="bar-fill"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {tab === "pr" && (
+        <div className="pr-page">
+          <h1>🏆 Personal Records</h1>
+
+          {Object.entries(getPRs()).map(([name, weight]) => (
+            <div className="training-card" key={name}>
+              <h3>{name}</h3>
+              <p>MAX {weight}kg</p>
+            </div>
+          ))}
+        </div>
+      )}
       {tab === "calendar" && (
         <div className="calendar-page">
           <h1>Calendar</h1>
 
-          {sessions.map((session) => (
-            <div className="training-card" key={session.id}>
-              <p className="training-date">{session.date}</p>
-              <h3>{session.title}</h3>
+          {Object.entries(groupedSessions()).map(([date, dateSessions]) => (
+            <div key={date}>
+              <h2>{date}</h2>
 
-              {session.exercises.map((exercise) => (
-                <p key={exercise.id}>
-                  {exercise.name} {exercise.weight}kg × {exercise.reps}回 × {exercise.sets}セット
-                </p>
+              {dateSessions.map((session) => (
+                <div className="training-card" key={session.id}>
+                  <h3>{session.title}</h3>
+
+                  {session.exercises.map((exercise) => (
+                    <p key={exercise.id}>
+                      {exercise.name} {exercise.weight}kg × {exercise.reps}回 × {exercise.sets}セット
+                    </p>
+                  ))}
+                </div>
               ))}
             </div>
           ))}
@@ -253,6 +383,8 @@ function App() {
         <button onClick={() => setTab("training")}>🏋️</button>
         <button onClick={() => setTab("menu")}>📋</button>
         <button onClick={() => setTab("body")}>🧍</button>
+        <button onClick={() => setTab("analysis")}>📊</button>
+        <button onClick={() => setTab("pr")}>🏆</button>
         <button onClick={() => setTab("calendar")}>📅</button>
       </div>
     </div>
