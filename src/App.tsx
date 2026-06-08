@@ -175,6 +175,22 @@ function getPRs() {
 
   return prs;
 }
+function weeklyCount() {
+  return sessions.filter(
+    (session) => isWithin7Days(session.date)
+  ).length;
+}
+function streakCount() {
+  const uniqueDates = [
+    ...new Set(
+      sessions.map(
+        (session) => session.date
+      )
+    ),
+  ];
+
+  return uniqueDates.length;
+}
   return (
     <div className="app">
       <h1>PumpLog 💪</h1>
@@ -184,6 +200,8 @@ function getPRs() {
           todayCount={todaySessions.length}
           trained={trained}
           prs={getPRs()}
+          weeklyCount={weeklyCount()}
+          streak={streakCount()}
           goTraining={() => setTab("training")}
         />
       )}
@@ -230,21 +248,33 @@ function getPRs() {
   />
 )}
 
-            <div className="bottom-nav">
+      <div className="bottom-nav">
 
-        <button onClick={() => setTab("home")}>
+        <button
+          className={tab === "home" ? "active-tab" : ""}
+          onClick={() => setTab("home")}
+        >
           🏠
         </button>
 
-        <button onClick={() => setTab("training")}>
+        <button
+          className={tab === "training" ? "active-tab" : ""}
+          onClick={() => setTab("training")}
+        >
           🏋️
         </button>
 
-        <button onClick={() => setTab("analysis")}>
+        <button
+          className={tab === "analysis" ? "active-tab" : ""}
+          onClick={() => setTab("analysis")}
+        >
           📊
         </button>
 
-        <button onClick={() => setTab("calendar")}>
+        <button
+          className={tab === "calendar" ? "active-tab" : ""}
+          onClick={() => setTab("calendar")}
+        >
           📅
         </button>
 

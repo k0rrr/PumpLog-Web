@@ -79,11 +79,21 @@ function Log({
 }: Props) {
   return (
     <>
-      <h2>Log</h2>
+      <div className="page-header">
+        <div>
+            <p>Workout</p>
+            <h2>Log</h2>
+        </div>
 
-      <button onClick={() => setShowMenuManager(!showMenuManager)}>
-        {showMenuManager ? "記録に戻る" : "メニュー管理"}
-      </button>
+        <button
+            className="small-button"
+            onClick={() =>
+            setShowMenuManager(!showMenuManager)
+            }
+        >
+            {showMenuManager ? "戻る" : "管理"}
+        </button>
+        </div>
 
       {showMenuManager && (
         <div className="menu-page">
@@ -240,9 +250,16 @@ function Log({
             </div>
           )}
 
-          <button className="add-button" onClick={() => setShowAdd(true)}>
-            ＋
-          </button>
+          <div className="start-workout-card">
+            <div>
+                <p>Ready?</p>
+                <h3>Start Workout</h3>
+            </div>
+
+            <button onClick={() => setShowAdd(true)}>
+                Start
+            </button>
+            </div>
         </>
       )}
     </>
