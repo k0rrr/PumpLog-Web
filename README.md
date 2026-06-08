@@ -1,73 +1,38 @@
-# React + TypeScript + Vite
+# PumpLog 💪
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+筋トレ記録を可視化するWebアプリです。  
+トレーニングメニューを作成し、重量・回数・セット数を記録できます。
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- トレーニングメニュー作成
+- 種目ごとの重量・回数・セット数記録
+- 今日のトレーニング表示
+- 過去の記録を日付ごとに表示
+- 7日間の部位別分析
+- 筋肉マップによるトレーニング部位の可視化
+- 種目ごとのPR表示
+- 次に鍛えるべき部位の提案
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- Vite
+- CSS
+- localStorage
 
-## Expanding the ESLint configuration
+## Purpose
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+筋トレの記録をただ残すだけでなく、  
+「どの部位を鍛えたか」「どの部位が不足しているか」を可視化することで、  
+バランスの良いトレーニングをサポートすることを目的としています。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Future Plans
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- PWA対応
+- Supabase連携
+- ユーザー認証
+- 月間分析
+- トレーニング成長グラフ
+- AIによるトレーニング提案

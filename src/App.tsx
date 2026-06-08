@@ -43,8 +43,9 @@ function App() {
     localStorage.setItem("menus", JSON.stringify(menus));
   }, [menus]);
 
-  const [tab, setTab] = useState("training");
+  const [tab, setTab] = useState("home");
   const [showAdd, setShowAdd] = useState(false);
+  const [showMenuManager, setShowMenuManager] = useState(false);
   const [part, setPart] = useState("");
   const [menuName, setMenuName] = useState("");
   const [exerciseName, setExerciseName] = useState("");
@@ -173,11 +174,112 @@ function getPRs() {
   return (
     <div className="app">
       <h1>PumpLog 💪</h1>
+      {tab === "home" && (
+  <div className="home-page">
+
+    <h2>Dashboard</h2>
+
+    <div className="training-card">
+      <h3>🔥 Today</h3>
+
+      <p>{today}</p>
+
+      <p>
+        今日のトレーニング：
+        {todaySessions.length}件
+      </p>
+
+      <button onClick={() => setTab("training")}>
+        Start Workout
+      </button>
+    </div>
+
+
+    <div className="training-card">
+      <h3>7Days Muscle</h3>
+
+      <MuscleMap trained={trained} />
+    </div>
+
+
+    <div className="training-card">
+      <h3>🏆 PR</h3>
+
+      {Object.entries(getPRs())
+        .slice(0, 3)
+        .map(([name, weight]) => (
+          <p key={name}>
+            {name}：{weight}kg
+          </p>
+        ))}
+    </div>
+
+  </div>
+)}
 
       {tab === "training" && (
         <>
           <h2>今日のトレーニング</h2>
+          <button onClick={() => setShowMenuManager(!showMenuManager)}>
+            {showMenuManager ? "記録に戻る" : "メニュー管理"}
+          </button>
 
+          {showMenuManager && (
+            <div className="menu-page">
+              <h1>Menu</h1>
+
+              <input
+                placeholder="メニュー名 例：胸の日"
+                value={menuName}
+                onChange={(e) => setMenuName(e.target.value)}
+              />
+
+              <div className="part-buttons">
+                {parts.map((p) => (
+                  <button
+                    key={p}
+                    className={part === p ? "selected" : ""}
+                    onClick={() => setPart(p)}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                placeholder="種目名 例：ベンチプレス"
+                value={exerciseName}
+                onChange={(e) => setExerciseName(e.target.value)}
+              />
+
+              <button onClick={addExercise}>
+                種目を追加
+              </button>
+
+              {exercises.map((exercise, index) => (
+                <div className="training-card" key={index}>
+                  {exercise}
+                </div>
+              ))}
+
+              <button onClick={saveMenu}>
+                メニュー保存
+              </button>
+
+              <h2>保存済みメニュー</h2>
+
+              {menus.map((menu, index) => (
+                <div className="training-card" key={index}>
+                  <h3>{menu.name}</h3>
+                  <p>{menu.part}</p>
+                  <p>{menu.exercises.join(" / ")}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!showMenuManager && (
+          <>
           {todaySessions.map((session) => (
             <div className="training-card" key={session.id}>
               <p className="training-date">{session.date}</p>
@@ -272,54 +374,28 @@ function getPRs() {
           )}
 
           <button className="add-button" onClick={() => setShowAdd(true)}>＋</button>
+          </>
+          )}
         </>
       )}
 
-      {tab === "menu" && (
-        <div className="menu-page">
-          <h1>Menu</h1>
-
-          <input placeholder="メニュー名 例：胸の日" value={menuName} onChange={(e) => setMenuName(e.target.value)} />
-
-          <div className="part-buttons">
-            {parts.map((p) => (
-              <button key={p} className={part === p ? "selected" : ""} onClick={() => setPart(p)}>
-                {p}
-              </button>
-            ))}
-          </div>
-
-          <input placeholder="種目名 例：ベンチプレス" value={exerciseName} onChange={(e) => setExerciseName(e.target.value)} />
-
-          <button onClick={addExercise}>種目を追加</button>
-
-          {exercises.map((exercise, index) => (
-            <div className="training-card" key={index}>{exercise}</div>
-          ))}
-
-          <button onClick={saveMenu}>メニュー保存</button>
-
-          <h2>保存済みメニュー</h2>
-
-          {menus.map((menu, index) => (
-            <div className="training-card" key={index}>
-              <h3>{menu.name}</h3>
-              <p>{menu.part}</p>
-              <p>{menu.exercises.join(" / ")}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === "body" && (
-        <div className="body-page">
-          <h1>7Days</h1>
-          <MuscleMap trained={trained} />
-        </div>
-      )}
       {tab === "analysis" && (
         <div className="analysis-page">
           <h1>7Days Analysis</h1>
+          {getWeakParts().length > 0 && (
+          <div className="training-card">
+            <h2>💡 Next Workout</h2>
+
+            <p>
+              おすすめ：
+              {getWeakParts()[0]}
+            </p>
+
+            <p>
+              最近刺激が少ない部位です
+            </p>
+          </div>
+        )}
 
           {parts.map((part) => {
             const count = countPart(part);
@@ -343,18 +419,7 @@ function getPRs() {
           })}
         </div>
       )}
-      {tab === "pr" && (
-        <div className="pr-page">
-          <h1>🏆 Personal Records</h1>
-
-          {Object.entries(getPRs()).map(([name, weight]) => (
-            <div className="training-card" key={name}>
-              <h3>{name}</h3>
-              <p>MAX {weight}kg</p>
-            </div>
-          ))}
-        </div>
-      )}
+    
       {tab === "calendar" && (
         <div className="calendar-page">
           <h1>Calendar</h1>
@@ -379,14 +444,26 @@ function getPRs() {
         </div>
       )}
 
-      <div className="bottom-nav">
-        <button onClick={() => setTab("training")}>🏋️</button>
-        <button onClick={() => setTab("menu")}>📋</button>
-        <button onClick={() => setTab("body")}>🧍</button>
-        <button onClick={() => setTab("analysis")}>📊</button>
-        <button onClick={() => setTab("pr")}>🏆</button>
-        <button onClick={() => setTab("calendar")}>📅</button>
+            <div className="bottom-nav">
+
+        <button onClick={() => setTab("home")}>
+          🏠
+        </button>
+
+        <button onClick={() => setTab("training")}>
+          🏋️
+        </button>
+
+        <button onClick={() => setTab("analysis")}>
+          📊
+        </button>
+
+        <button onClick={() => setTab("calendar")}>
+          📅
+        </button>
+
       </div>
+
     </div>
   );
 }
