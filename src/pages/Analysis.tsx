@@ -11,9 +11,27 @@ function Analysis({
   maxPartCount,
   getWeakParts,
 }: Props) {
+
+  const trainedCount = parts.filter(
+    (part) => countPart(part) > 0
+  ).length;
+
   return (
     <div className="analysis-page">
       <h1>7Days Analysis</h1>
+      <div className="training-card balance-card">
+
+      <h3>Weekly Balance</h3>
+
+      <h1>
+        {trainedCount}/{parts.length}
+      </h1>
+
+      <p>
+        muscle groups trained
+      </p>
+
+    </div>
 
       {getWeakParts().length > 0 && (
         <div className="training-card">

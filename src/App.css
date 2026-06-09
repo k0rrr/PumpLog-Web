@@ -175,3 +175,86 @@ input {
 .body-part.legs {
   width: 96px;
 }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  margin: 10px 0;
+}
+
+.stat-card h1 {
+  font-size: 36px;
+  margin: 8px 0;
+}
+
+.stat-card p {
+  color: #64748b;
+}
+
+.today-message {
+  opacity: 0.85;
+}
+
+.pr-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.pr-row span {
+  font-size: 28px;
+}
+
+.pr-row h4 {
+  margin: 0;
+}
+
+.pr-row p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.balance-card {
+  text-align: center;
+}
+
+.balance-card h1 {
+  font-size: 42px;
+  margin: 10px 0;
+}
+
+.analysis-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.analysis-row h3 {
+  margin: 0;
+}
+
+.analysis-row p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.bar-bg {
+  width: 100%;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  border-radius: 999px;
+}

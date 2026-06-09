@@ -1,5 +1,21 @@
 import MuscleMap from "../components/MuscleMap";
 
+type TrainingExercise = {
+  id: string;
+  name: string;
+  weight: string;
+  reps: string;
+  sets: string;
+};
+
+type TrainingSession = {
+  id: string;
+  title: string;
+  part: string;
+  date: string;
+  exercises: TrainingExercise[];
+};
+
 type Props = {
   today: string;
   todayCount: number;
@@ -8,11 +24,13 @@ type Props = {
   weeklyCount: number;
   streak: number;
   goTraining: () => void;
+  todaySessions: TrainingSession[];
 };
 
 function Home({
   today,
   todayCount,
+  todaySessions,
   trained,
   prs,
   weeklyCount,
@@ -21,7 +39,6 @@ function Home({
 }: Props) {
   return (
     <div className="home-page">
-
       <div className="home-header">
         <div>
           <p>Welcome back</p>
@@ -31,49 +48,46 @@ function Home({
         <span>💪</span>
       </div>
 
-
-      <div className="training-card">
-        <h3>This Week 🔥</h3>
-        <div className="training-card">
-        <h3>🔥 Streak</h3>
-
-        <h1>{streak} days</h1>
-
-        <p>
-            Keep going
-        </p>
+      <div className="stats-grid">
+        <div className="training-card stat-card">
+          <h3>This Week 🔥</h3>
+          <h1>{weeklyCount}</h1>
+          <p>workouts</p>
         </div>
 
-        <h1>{weeklyCount}</h1>
-
-        <p>
-          workouts completed
-        </p>
+        <div className="training-card stat-card">
+          <h3>🔥 Streak</h3>
+          <h1>{streak}</h1>
+          <p>days</p>
+        </div>
       </div>
-
 
       <div className="training-card today-card">
         <h3>🔥 Today</h3>
-
         <p>{today}</p>
+        <p>今日のトレーニング：{todayCount}件</p>
 
-        <p>
-          今日のトレーニング：
-          {todayCount}件
-        </p>
+        {todaySessions.length === 0 ? (
+          <p className="today-message">
+            今日はまだ記録がありません
+          </p>
+        ) : (
+          todaySessions.map((session) => (
+            <p key={session.id}>
+              {session.title}
+            </p>
+          ))
+        )}
 
         <button onClick={goTraining}>
           Start Workout
         </button>
       </div>
 
-
       <div className="training-card">
         <h3>7Days Muscle</h3>
-
         <MuscleMap trained={trained} />
       </div>
-
 
       <div className="training-card">
         <h3>🏆 PR</h3>
@@ -85,15 +99,26 @@ function Home({
         ) : (
           Object.entries(prs)
             .slice(0, 3)
-            .map(([name, weight]) => (
-              <p key={name}>
-                {name}：{weight}kg
-              </p>
+            .map(([name, weight], index) => (
+              <div className="pr-row" key={name}>
+
+                <span>
+                  {index === 0
+                    ? "🥇"
+                    : index === 1
+                    ? "🥈"
+                    : "🥉"}
+                </span>
+
+                <div>
+                  <h4>{name}</h4>
+                  <p>{weight}kg</p>
+                </div>
+
+              </div>
             ))
         )}
-
       </div>
-
     </div>
   );
 }

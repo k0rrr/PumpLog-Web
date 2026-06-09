@@ -203,6 +203,7 @@ function streakCount() {
           weeklyCount={weeklyCount()}
           streak={streakCount()}
           goTraining={() => setTab("training")}
+          todaySessions={todaySessions}
         />
       )}
       {tab === "training" && (
