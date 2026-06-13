@@ -1,13 +1,16 @@
 import MuscleMap from "../components/MuscleMap";
 
+type TrainingSet = {
+  id: string;
+  weight: string;
+  reps: string;
+};
+
 type TrainingExercise = {
   id: string;
   name: string;
-  weight: string;
-  reps: string;
-  sets: string;
+  sets: TrainingSet[];
 };
-
 type TrainingSession = {
   id: string;
   title: string;

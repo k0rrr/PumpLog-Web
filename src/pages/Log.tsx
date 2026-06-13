@@ -1,9 +1,13 @@
+type TrainingSet = {
+  id: string;
+  weight: string;
+  reps: string;
+};
+
 type TrainingExercise = {
   id: string;
   name: string;
-  weight: string;
-  reps: string;
-  sets: string;
+  sets: TrainingSet[];
 };
 
 type TrainingSession = {
@@ -31,6 +35,9 @@ type Props = {
   sessions: TrainingSession[];
   setSessions: React.Dispatch<React.SetStateAction<TrainingSession[]>>;
   menus: TrainingMenu[];
+  deleteMenu: (menuName: string) => void;
+  editingSessionId: string | null;
+  setEditingSessionId: React.Dispatch<React.SetStateAction<string | null>>;
   parts: string[];
   showAdd: boolean;
   setShowAdd: React.Dispatch<React.SetStateAction<boolean>>;
@@ -50,6 +57,22 @@ type Props = {
   addExercise: () => void;
   saveMenu: () => void;
   saveMenuRecords: () => void;
+  updateTrainingSet: (
+    sessionId: string,
+    exerciseId: string,
+    setId: string,
+    field: "weight" | "reps",
+    value: string
+  ) => void;
+  addTrainingSet: (
+  sessionId: string,
+  exerciseId: string
+) => void;
+deleteTrainingSet: (
+  sessionId: string,
+  exerciseId: string,
+  setId: string
+) => void;
 };
 
 function Log({
@@ -57,6 +80,9 @@ function Log({
   sessions,
   setSessions,
   menus,
+  deleteMenu,
+  editingSessionId,
+  setEditingSessionId,
   parts,
   showAdd,
   setShowAdd,
@@ -76,28 +102,32 @@ function Log({
   addExercise,
   saveMenu,
   saveMenuRecords,
-}: Props) {
+  updateTrainingSet,
+  addTrainingSet,
+  deleteTrainingSet,
+  }: Props) {
   return (
     <>
       <div className="page-header">
         <div>
-            <p>Workout</p>
-            <h2>Log</h2>
+          <p>Workout</p>
+          <h2>Log</h2>
         </div>
-
-        <button
-            className="small-button"
-            onClick={() =>
-            setShowMenuManager(!showMenuManager)
-            }
-        >
-            {showMenuManager ? "戻る" : "管理"}
-        </button>
-        </div>
+      </div>
 
       {showMenuManager && (
         <div className="menu-page">
-          <h1>Menu</h1>
+          <h1>メニュー作成</h1>
+
+          <button
+            className="small-button"
+            onClick={() => {
+              setShowMenuManager(false);
+              setShowAdd(true);
+            }}
+          >
+            記録画面に戻る
+          </button>
 
           <input
             placeholder="メニュー名 例：胸の日"
@@ -117,13 +147,15 @@ function Log({
             ))}
           </div>
 
-          <input
-            placeholder="種目名 例：ベンチプレス"
-            value={exerciseName}
-            onChange={(e) => setExerciseName(e.target.value)}
-          />
+          <div className="exercise-add-row">
+            <input
+              placeholder="種目名 例：ベンチプレス"
+              value={exerciseName}
+              onChange={(e) => setExerciseName(e.target.value)}
+            />
 
-          <button onClick={addExercise}>種目を追加</button>
+            <button onClick={addExercise}>＋</button>
+          </div>
 
           {exercises.map((exercise, index) => (
             <div className="training-card" key={index}>
@@ -140,6 +172,13 @@ function Log({
               <h3>{menu.name}</h3>
               <p>{menu.part}</p>
               <p>{menu.exercises.join(" / ")}</p>
+
+              <button
+                className="delete-button"
+                onClick={() => deleteMenu(menu.name)}
+              >
+                削除
+              </button>
             </div>
           ))}
         </div>
@@ -155,19 +194,96 @@ function Log({
               <h3>{session.title}</h3>
 
               {session.exercises.map((exercise) => (
-                <p key={exercise.id}>
-                  {exercise.name} {exercise.weight}kg × {exercise.reps}回 ×{" "}
-                  {exercise.sets}セット
-                </p>
+                <div key={exercise.id}>
+                  <h4>{exercise.name}</h4>
+
+                  {exercise.sets.map((set, index) => (
+                    <div key={set.id}>
+                      {editingSessionId === session.id ? (
+                        <div className="edit-record-row">
+                          <p>Set {index + 1}</p>
+
+                          <input
+                            value={set.weight}
+                            placeholder="重量"
+                            onChange={(e) =>
+                              updateTrainingSet(
+                                session.id,
+                                exercise.id,
+                                set.id,
+                                "weight",
+                                e.target.value
+                              )
+                            }
+                          />
+
+                          <input
+                            value={set.reps}
+                            placeholder="回数"
+                            onChange={(e) =>
+                              updateTrainingSet(
+                                session.id,
+                                exercise.id,
+                                set.id,
+                                "reps",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <button
+                          className="delete-button"
+                          onClick={() =>
+                            deleteTrainingSet(
+                              session.id,
+                              exercise.id,
+                              set.id
+                            )
+                          }
+                        >
+                          セット削除
+                        </button>
+                        </div>
+                      ) : (
+                        <p>
+                          Set {index + 1}：{set.weight}kg × {set.reps}回
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  {editingSessionId === session.id && (
+                  <button
+                    onClick={() =>
+                      addTrainingSet(session.id, exercise.id)
+                    }
+                  >
+                    ＋セット追加
+                  </button>
+                )}
+                </div>
               ))}
 
-              <button
-                onClick={() =>
-                  setSessions(sessions.filter((item) => item.id !== session.id))
-                }
-              >
-                削除
-              </button>
+              <div className="record-actions">
+                {editingSessionId === session.id ? (
+                  <button onClick={() => setEditingSessionId(null)}>
+                    完了
+                  </button>
+                ) : (
+                  <button onClick={() => setEditingSessionId(session.id)}>
+                    編集
+                  </button>
+                )}
+
+                <button
+                  className="delete-button"
+                  onClick={() =>
+                    setSessions(
+                      sessions.filter((item) => item.id !== session.id)
+                    )
+                  }
+                >
+                  削除
+                </button>
+              </div>
             </div>
           ))}
 
@@ -175,18 +291,26 @@ function Log({
             <div className="add-form">
               <h2>メニューから記録</h2>
 
+              <button
+                className="create-menu-button"
+                onClick={() => setShowMenuManager(true)}
+              >
+                ＋ メニュー作成
+              </button>
+
               {menus.length === 0 && (
                 <div className="training-card">
                   <p>まだメニューがありません。</p>
-                  <button onClick={() => setShowMenuManager(true)}>
-                    メニューを作る
-                  </button>
                 </div>
               )}
 
               {menus.map((menu, index) => (
-                <button key={index} onClick={() => setSelectedMenu(menu)}>
-                  {menu.name}
+                <button
+                  className="menu-select-button"
+                  key={index}
+                  onClick={() => setSelectedMenu(menu)}
+                >
+                  {menu.name} / {menu.part}
                 </button>
               ))}
 
@@ -225,20 +349,6 @@ function Log({
                           })
                         }
                       />
-
-                      <input
-                        placeholder="セット数"
-                        value={menuRecords[exercise]?.sets || ""}
-                        onChange={(e) =>
-                          setMenuRecords({
-                            ...menuRecords,
-                            [exercise]: {
-                              ...menuRecords[exercise],
-                              sets: e.target.value,
-                            },
-                          })
-                        }
-                      />
                     </div>
                   ))}
 
@@ -246,20 +356,26 @@ function Log({
                 </div>
               )}
 
-              <button onClick={() => setShowAdd(false)}>閉じる</button>
+              <button
+                onClick={() => {
+                  setShowAdd(false);
+                  setSelectedMenu(null);
+                  setMenuRecords({});
+                }}
+              >
+                閉じる
+              </button>
             </div>
           )}
 
           <div className="start-workout-card">
             <div>
-                <p>Ready?</p>
-                <h3>Start Workout</h3>
+              <p>Ready?</p>
+              <h3>Start Workout</h3>
             </div>
 
-            <button onClick={() => setShowAdd(true)}>
-                Start
-            </button>
-            </div>
+            <button onClick={() => setShowAdd(true)}>Start</button>
+          </div>
         </>
       )}
     </>

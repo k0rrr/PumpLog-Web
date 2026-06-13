@@ -258,3 +258,81 @@ input {
   background: linear-gradient(135deg, #2563eb, #60a5fa);
   border-radius: 999px;
 }
+
+.menu-select-button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  background: #222;
+  color: white;
+  font-size: 15px;
+  text-align: left;
+}
+
+.exercise-record {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.exercise-record input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.create-menu-button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px dashed #555;
+  background: transparent;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.exercise-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.exercise-add-row input {
+  flex: 1;
+}
+
+.exercise-add-row button {
+  width: 50px;
+  border-radius: 12px;
+}
+
+.part-buttons .selected {
+  background: #00ff88;
+  color: black;
+  font-weight: bold;
+}
+.delete-button {
+  background: #ff4d4d;
+  color: white;
+  margin-top: 10px;
+}
+.create-menu-button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px dashed #555;
+  background: #1f1f1f;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.record-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.record-actions button {
+  flex: 1;
+}
