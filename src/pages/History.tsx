@@ -15,7 +15,7 @@ type TrainingExercise = {
 type TrainingSession = {
   id: string;
   title: string;
-  part: string;
+  parts: string[];
   date: string;
   exercises: TrainingExercise[];
 };

@@ -20,14 +20,14 @@ type TrainingExercise = {
 type TrainingSession = {
   id: string;
   title: string;
-  part: string;
+  parts: string[];
   date: string;
   exercises: TrainingExercise[];
 };
 
 type TrainingMenu = {
   name: string;
-  part: string;
+  parts: string[];
   exercises: string[];
 };
 
@@ -45,7 +45,7 @@ function App() {
   const [tab, setTab] = useState("home");
   const [showAdd, setShowAdd] = useState(false);
   const [showMenuManager, setShowMenuManager] = useState(false);
-  const [part, setPart] = useState("");
+  const [selectedParts, setSelectedParts] = useState<string[]>([]);
   const [menuName, setMenuName] = useState("");
   const [exerciseName, setExerciseName] = useState("");
   const [exercises, setExercises] = useState<string[]>([]);
@@ -57,7 +57,6 @@ function App() {
 
   const parts = ["胸", "背中", "肩", "腕", "脚"];
   const today = new Date().toLocaleDateString("ja-JP");
-
   const todaySessions = sessions.filter((session) => session.date === today);
 
   useEffect(() => {
@@ -70,17 +69,34 @@ function App() {
 
   function addExercise() {
     if (!exerciseName) return;
-
     setExercises([...exercises, exerciseName]);
     setExerciseName("");
   }
 
-  function saveMenu() {
-    if (!menuName || !part || exercises.length === 0) return;
+  function togglePart(partName: string) {
+    if (selectedParts.includes(partName)) {
+      setSelectedParts(selectedParts.filter((p) => p !== partName));
+    } else {
+      setSelectedParts([...selectedParts, partName]);
+    }
+  }
 
-    setMenus([...menus, { name: menuName, part, exercises }]);
+  function saveMenu() {
+    if (!menuName || selectedParts.length === 0 || exercises.length === 0) {
+      return;
+    }
+
+    setMenus([
+      ...menus,
+      {
+        name: menuName,
+        parts: selectedParts,
+        exercises,
+      },
+    ]);
+
     setMenuName("");
-    setPart("");
+    setSelectedParts([]);
     setExercises([]);
     setShowMenuManager(false);
     setShowAdd(true);
@@ -92,7 +108,7 @@ function App() {
     const newSession: TrainingSession = {
       id: crypto.randomUUID(),
       title: selectedMenu.name,
-      part: selectedMenu.part,
+      parts: selectedMenu.parts,
       date: today,
       exercises: selectedMenu.exercises.map((exercise) => ({
         id: crypto.randomUUID(),
@@ -123,9 +139,7 @@ function App() {
     setId: string,
     field: "weight" | "reps",
     value: string
-  )
-  
-  {
+  ) {
     setSessions(
       sessions.map((session) =>
         session.id === sessionId
@@ -151,57 +165,57 @@ function App() {
       )
     );
   }
+
   function addTrainingSet(sessionId: string, exerciseId: string) {
-  setSessions(
-    sessions.map((session) =>
-      session.id === sessionId
-        ? {
-            ...session,
-            exercises: session.exercises.map((exercise) =>
-              exercise.id === exerciseId
-                ? {
-                    ...exercise,
-                    sets: [
-                      ...exercise.sets,
-                      {
-                        id: crypto.randomUUID(),
-                        weight: "",
-                        reps: "",
-                      },
-                    ],
-                  }
-                : exercise
-            ),
-          }
-        : session
-    )
-  );
-}
-function deleteTrainingSet(
-  sessionId: string,
-  exerciseId: string,
-  setId: string
-) {
-  setSessions(
-    sessions.map((session) =>
-      session.id === sessionId
-        ? {
-            ...session,
-            exercises: session.exercises.map((exercise) =>
-              exercise.id === exerciseId
-                ? {
-                    ...exercise,
-                    sets: exercise.sets.filter(
-                      (set) => set.id !== setId
-                    ),
-                  }
-                : exercise
-            ),
-          }
-        : session
-    )
-  );
-}
+    setSessions(
+      sessions.map((session) =>
+        session.id === sessionId
+          ? {
+              ...session,
+              exercises: session.exercises.map((exercise) =>
+                exercise.id === exerciseId
+                  ? {
+                      ...exercise,
+                      sets: [
+                        ...exercise.sets,
+                        {
+                          id: crypto.randomUUID(),
+                          weight: "",
+                          reps: "",
+                        },
+                      ],
+                    }
+                  : exercise
+              ),
+            }
+          : session
+      )
+    );
+  }
+
+  function deleteTrainingSet(
+    sessionId: string,
+    exerciseId: string,
+    setId: string
+  ) {
+    setSessions(
+      sessions.map((session) =>
+        session.id === sessionId
+          ? {
+              ...session,
+              exercises: session.exercises.map((exercise) =>
+                exercise.id === exerciseId
+                  ? {
+                      ...exercise,
+                      sets: exercise.sets.filter((set) => set.id !== setId),
+                    }
+                  : exercise
+              ),
+            }
+          : session
+      )
+    );
+  }
 
   function trained(partName: string) {
     const todayDate = new Date();
@@ -213,7 +227,7 @@ function deleteTrainingSet(
         (todayDate.getTime() - sessionDate.getTime()) /
         (1000 * 60 * 60 * 24);
 
-      return diff <= 7 && session.part === partName;
+      return diff <= 7 && session.parts?.includes(partName);
     });
   }
 
@@ -230,7 +244,9 @@ function deleteTrainingSet(
 
   function countPart(partName: string) {
     return sessions.filter(
-      (session) => session.part === partName && isWithin7Days(session.date)
+      (session) =>
+        session.parts?.includes(partName) &&
+        isWithin7Days(session.date)
     ).length;
   }
 
@@ -274,13 +290,47 @@ function deleteTrainingSet(
     return prs;
   }
 
+  function getExerciseNames() {
+    return [
+      ...new Set(
+        sessions.flatMap((session) =>
+          session.exercises.map((exercise) => exercise.name)
+        )
+      ),
+    ];
+  }
+
+  function getExerciseProgress(exerciseName: string) {
+    const progressMap: Record<string, number> = {};
+
+    sessions.forEach((session) => {
+      const targetExercise = session.exercises.find(
+        (exercise) => exercise.name === exerciseName
+      );
+
+      if (!targetExercise) return;
+
+      const maxWeight = Math.max(
+        ...targetExercise.sets.map((set) => Number(set.weight) || 0)
+      );
+
+      if (!progressMap[session.date] || maxWeight > progressMap[session.date]) {
+        progressMap[session.date] = maxWeight;
+      }
+    });
+
+    return Object.entries(progressMap).map(([date, weight]) => ({
+      date,
+      weight,
+    }));
+  }
+
   function weeklyCount() {
     return sessions.filter((session) => isWithin7Days(session.date)).length;
   }
 
   function streakCount() {
     const uniqueDates = [...new Set(sessions.map((session) => session.date))];
-
     return uniqueDates.length;
   }
 
@@ -317,8 +367,8 @@ function deleteTrainingSet(
           setShowMenuManager={setShowMenuManager}
           menuName={menuName}
           setMenuName={setMenuName}
-          part={part}
-          setPart={setPart}
+          selectedParts={selectedParts}
+          togglePart={togglePart}
           exerciseName={exerciseName}
           setExerciseName={setExerciseName}
           exercises={exercises}
@@ -341,6 +391,8 @@ function deleteTrainingSet(
           countPart={countPart}
           maxPartCount={maxPartCount}
           getWeakParts={getWeakParts}
+          exerciseNames={getExerciseNames()}
+          getExerciseProgress={getExerciseProgress}
         />
       )}
 

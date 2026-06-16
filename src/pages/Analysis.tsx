@@ -1,8 +1,19 @@
+import { useState } from "react";
+type Progress = {
+  date: string;
+  weight: number;
+};
+
 type Props = {
   parts: string[];
   countPart: (part: string) => number;
   maxPartCount: () => number;
   getWeakParts: () => string[];
+
+  exerciseNames: string[];
+  getExerciseProgress: (
+    exerciseName: string
+  ) => Progress[];
 };
 
 function Analysis({
@@ -10,7 +21,22 @@ function Analysis({
   countPart,
   maxPartCount,
   getWeakParts,
+  exerciseNames,
+  getExerciseProgress,
 }: Props) {
+
+  const [selectedExercise, setSelectedExercise] =
+    useState("");
+  
+  const progress =
+      selectedExercise
+        ? getExerciseProgress(selectedExercise)
+        : [];
+
+    const maxWeight = Math.max(
+      ...progress.map((item) => item.weight),
+      1
+    );
 
   const trainedCount = parts.filter(
     (part) => countPart(part) > 0
@@ -23,6 +49,7 @@ function Analysis({
 
       <h3>Weekly Balance</h3>
 
+
       <h1>
         {trainedCount}/{parts.length}
       </h1>
@@ -32,6 +59,53 @@ function Analysis({
       </p>
 
     </div>
+
+    <div className="training-card">
+
+  <h2>Progress 📈</h2>
+
+  <select
+    value={selectedExercise}
+    onChange={(e) =>
+      setSelectedExercise(e.target.value)
+    }
+  >
+    <option value="">
+      種目を選択
+    </option>
+
+    {exerciseNames.map((name) => (
+      <option key={name} value={name}>
+        {name}
+      </option>
+    ))}
+  </select>
+
+
+  {selectedExercise &&
+    getExerciseProgress(selectedExercise).map(
+      (record) => (
+        <div
+          className="progress-row"
+          key={record.date}
+        >
+          <span>{record.date}</span>
+
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${(record.weight / maxWeight) * 100}%`,
+              }}
+            >
+              {record.weight}kg
+            </div>
+          </div>
+        </div>
+      )
+    )}
+
+</div>
 
       {getWeakParts().length > 0 && (
         <div className="training-card">
@@ -44,6 +118,8 @@ function Analysis({
       {parts.map((part) => {
         const count = countPart(part);
         const percent = (count / maxPartCount()) * 100;
+
+        
 
         return (
           <div className="training-card" key={part}>

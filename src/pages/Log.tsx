@@ -13,14 +13,14 @@ type TrainingExercise = {
 type TrainingSession = {
   id: string;
   title: string;
-  part: string;
+  parts: string[];
   date: string;
   exercises: TrainingExercise[];
 };
 
 type TrainingMenu = {
   name: string;
-  part: string;
+  parts: string[];
   exercises: string[];
 };
 
@@ -45,8 +45,8 @@ type Props = {
   setShowMenuManager: React.Dispatch<React.SetStateAction<boolean>>;
   menuName: string;
   setMenuName: React.Dispatch<React.SetStateAction<string>>;
-  part: string;
-  setPart: React.Dispatch<React.SetStateAction<string>>;
+  selectedParts: string[];
+  togglePart: (partName: string) => void;
   exerciseName: string;
   setExerciseName: React.Dispatch<React.SetStateAction<string>>;
   exercises: string[];
@@ -64,15 +64,12 @@ type Props = {
     field: "weight" | "reps",
     value: string
   ) => void;
-  addTrainingSet: (
-  sessionId: string,
-  exerciseId: string
-) => void;
-deleteTrainingSet: (
-  sessionId: string,
-  exerciseId: string,
-  setId: string
-) => void;
+  addTrainingSet: (sessionId: string, exerciseId: string) => void;
+  deleteTrainingSet: (
+    sessionId: string,
+    exerciseId: string,
+    setId: string
+  ) => void;
 };
 
 function Log({
@@ -90,8 +87,8 @@ function Log({
   setShowMenuManager,
   menuName,
   setMenuName,
-  part,
-  setPart,
+  selectedParts,
+  togglePart,
   exerciseName,
   setExerciseName,
   exercises,
@@ -105,7 +102,7 @@ function Log({
   updateTrainingSet,
   addTrainingSet,
   deleteTrainingSet,
-  }: Props) {
+}: Props) {
   return (
     <>
       <div className="page-header">
@@ -130,7 +127,7 @@ function Log({
           </button>
 
           <input
-            placeholder="メニュー名 例：胸の日"
+            placeholder="メニュー名 例：Pushの日"
             value={menuName}
             onChange={(e) => setMenuName(e.target.value)}
           />
@@ -139,8 +136,8 @@ function Log({
             {parts.map((p) => (
               <button
                 key={p}
-                className={part === p ? "selected" : ""}
-                onClick={() => setPart(p)}
+                className={selectedParts.includes(p) ? "selected" : ""}
+                onClick={() => togglePart(p)}
               >
                 {p}
               </button>
@@ -170,14 +167,14 @@ function Log({
           {menus.map((menu, index) => (
             <div className="training-card" key={index}>
               <h3>{menu.name}</h3>
-              <p>{menu.part}</p>
+              <p>{menu.parts.join(" / ")}</p>
               <p>{menu.exercises.join(" / ")}</p>
 
               <button
                 className="delete-button"
                 onClick={() => deleteMenu(menu.name)}
               >
-                削除
+                メニュー削除
               </button>
             </div>
           ))}
@@ -192,6 +189,7 @@ function Log({
             <div className="training-card" key={session.id}>
               <p className="training-date">{session.date}</p>
               <h3>{session.title}</h3>
+              <p>{session.parts?.join(" / ")}</p>
 
               {session.exercises.map((exercise) => (
                 <div key={exercise.id}>
@@ -230,18 +228,15 @@ function Log({
                               )
                             }
                           />
+
                           <button
-                          className="delete-button"
-                          onClick={() =>
-                            deleteTrainingSet(
-                              session.id,
-                              exercise.id,
-                              set.id
-                            )
-                          }
-                        >
-                          セット削除
-                        </button>
+                            className="delete-button"
+                            onClick={() =>
+                              deleteTrainingSet(session.id, exercise.id, set.id)
+                            }
+                          >
+                            削除
+                          </button>
                         </div>
                       ) : (
                         <p>
@@ -250,23 +245,18 @@ function Log({
                       )}
                     </div>
                   ))}
+
                   {editingSessionId === session.id && (
-                  <button
-                    onClick={() =>
-                      addTrainingSet(session.id, exercise.id)
-                    }
-                  >
-                    ＋セット追加
-                  </button>
-                )}
+                    <button onClick={() => addTrainingSet(session.id, exercise.id)}>
+                      ＋セット追加
+                    </button>
+                  )}
                 </div>
               ))}
 
               <div className="record-actions">
                 {editingSessionId === session.id ? (
-                  <button onClick={() => setEditingSessionId(null)}>
-                    完了
-                  </button>
+                  <button onClick={() => setEditingSessionId(null)}>完了</button>
                 ) : (
                   <button onClick={() => setEditingSessionId(session.id)}>
                     編集
@@ -276,9 +266,7 @@ function Log({
                 <button
                   className="delete-button"
                   onClick={() =>
-                    setSessions(
-                      sessions.filter((item) => item.id !== session.id)
-                    )
+                    setSessions(sessions.filter((item) => item.id !== session.id))
                   }
                 >
                   削除
@@ -305,18 +293,27 @@ function Log({
               )}
 
               {menus.map((menu, index) => (
-                <button
-                  className="menu-select-button"
-                  key={index}
-                  onClick={() => setSelectedMenu(menu)}
-                >
-                  {menu.name} / {menu.part}
-                </button>
+                <div className="menu-select-row" key={index}>
+                  <button
+                    className="menu-select-button"
+                    onClick={() => setSelectedMenu(menu)}
+                  >
+                    {menu.name} / {menu.parts.join(" / ")}
+                  </button>
+
+                  <button
+                    className="menu-delete-button"
+                    onClick={() => deleteMenu(menu.name)}
+                  >
+                    削除
+                  </button>
+                </div>
               ))}
 
               {selectedMenu && (
                 <div className="training-card">
                   <h3>{selectedMenu.name}</h3>
+                  <p>{selectedMenu.parts.join(" / ")}</p>
 
                   {selectedMenu.exercises.map((exercise) => (
                     <div key={exercise} className="exercise-record">
