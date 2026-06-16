@@ -336,3 +336,56 @@ input {
 .record-actions button {
   flex: 1;
 }
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0;
+}
+
+.calendar-header button {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.calendar-grid button {
+  height: 42px;
+  border-radius: 14px;
+  border: none;
+  background: #1f1f1f;
+  color: white;
+}
+
+.trained-day {
+  background: #00ff88 !important;
+  color: black !important;
+  font-weight: bold;
+}
+
+.selected-day {
+  outline: 2px solid white;
+}
+
+.empty-text {
+  color: #888;
+  text-align: center;
+  margin-top: 20px;
+}

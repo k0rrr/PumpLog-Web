@@ -55,7 +55,7 @@ function App() {
   >({});
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
-  const parts = ["胸", "背中", "肩", "腕", "脚", "腹筋"];
+  const parts = ["胸", "背中", "肩", "腕", "脚"];
   const today = new Date().toLocaleDateString("ja-JP");
 
   const todaySessions = sessions.filter((session) => session.date === today);
