@@ -51,7 +51,7 @@ function App() {
   const [exercises, setExercises] = useState<string[]>([]);
   const [selectedMenu, setSelectedMenu] = useState<TrainingMenu | null>(null);
   const [menuRecords, setMenuRecords] = useState<
-    Record<string, { weight: string; reps: string; sets: string }>
+    Record<string, TrainingSet[]>
   >({});
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
@@ -103,31 +103,34 @@ function App() {
   }
 
   function saveMenuRecords() {
-    if (!selectedMenu) return;
+  if (!selectedMenu) return;
 
-    const newSession: TrainingSession = {
+  const newSession: TrainingSession = {
+    id: crypto.randomUUID(),
+    title: selectedMenu.name,
+    parts: selectedMenu.parts,
+    date: today,
+    exercises: selectedMenu.exercises.map((exercise) => ({
       id: crypto.randomUUID(),
-      title: selectedMenu.name,
-      parts: selectedMenu.parts,
-      date: today,
-      exercises: selectedMenu.exercises.map((exercise) => ({
-        id: crypto.randomUUID(),
-        name: exercise,
-        sets: [
-          {
-            id: crypto.randomUUID(),
-            weight: menuRecords[exercise]?.weight || "",
-            reps: menuRecords[exercise]?.reps || "",
-          },
-        ],
-      })),
-    };
+      name: exercise,
+      sets:
+        menuRecords[exercise]?.length > 0
+          ? menuRecords[exercise]
+          : [
+              {
+                id: crypto.randomUUID(),
+                weight: "",
+                reps: "",
+              },
+            ],
+    })),
+  };
 
-    setSessions([...sessions, newSession]);
-    setSelectedMenu(null);
-    setMenuRecords({});
-    setShowAdd(false);
-  }
+  setSessions([...sessions, newSession]);
+  setSelectedMenu(null);
+  setMenuRecords({});
+  setShowAdd(false);
+}
 
   function deleteMenu(menuName: string) {
     setMenus(menus.filter((menu) => menu.name !== menuName));
@@ -344,8 +347,7 @@ function App() {
           todayCount={todaySessions.length}
           trained={trained}
           prs={getPRs()}
-          weeklyCount={weeklyCount()}
-          streak={streakCount()}
+          
           goTraining={() => setTab("training")}
           todaySessions={todaySessions}
         />
@@ -387,10 +389,7 @@ function App() {
 
       {tab === "analysis" && (
         <Analysis
-          parts={parts}
-          countPart={countPart}
-          maxPartCount={maxPartCount}
-          getWeakParts={getWeakParts}
+          
           exerciseNames={getExerciseNames()}
           getExerciseProgress={getExerciseProgress}
         />

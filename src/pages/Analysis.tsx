@@ -1,142 +1,126 @@
 import { useState } from "react";
+
 type Progress = {
   date: string;
   weight: number;
 };
 
 type Props = {
-  parts: string[];
-  countPart: (part: string) => number;
-  maxPartCount: () => number;
-  getWeakParts: () => string[];
-
   exerciseNames: string[];
-  getExerciseProgress: (
-    exerciseName: string
-  ) => Progress[];
+  getExerciseProgress: (exerciseName: string) => Progress[];
 };
 
 function Analysis({
-  parts,
-  countPart,
-  maxPartCount,
-  getWeakParts,
   exerciseNames,
   getExerciseProgress,
 }: Props) {
+  const [selectedExercise, setSelectedExercise] = useState("");
 
-  const [selectedExercise, setSelectedExercise] =
-    useState("");
-  
-  const progress =
-      selectedExercise
-        ? getExerciseProgress(selectedExercise)
-        : [];
+  const progress = selectedExercise
+    ? getExerciseProgress(selectedExercise)
+    : [];
 
-    const maxWeight = Math.max(
-      ...progress.map((item) => item.weight),
-      1
-    );
-
-  const trainedCount = parts.filter(
-    (part) => countPart(part) > 0
-  ).length;
+  const maxWeight = Math.max(
+    ...progress.map((item) => item.weight),
+    1
+  );
 
   return (
     <div className="analysis-page">
-      <h1>7Days Analysis</h1>
-      <div className="training-card balance-card">
-
-      <h3>Weekly Balance</h3>
-
-
-      <h1>
-        {trainedCount}/{parts.length}
-      </h1>
-
-      <p>
-        muscle groups trained
-      </p>
-
-    </div>
-
-    <div className="training-card">
-
-  <h2>Progress 📈</h2>
-
-  <select
-    value={selectedExercise}
-    onChange={(e) =>
-      setSelectedExercise(e.target.value)
-    }
-  >
-    <option value="">
-      種目を選択
-    </option>
-
-    {exerciseNames.map((name) => (
-      <option key={name} value={name}>
-        {name}
-      </option>
-    ))}
-  </select>
-
-
-  {selectedExercise &&
-    getExerciseProgress(selectedExercise).map(
-      (record) => (
-        <div
-          className="progress-row"
-          key={record.date}
-        >
-          <span>{record.date}</span>
-
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{
-                width: `${(record.weight / maxWeight) * 100}%`,
-              }}
-            >
-              {record.weight}kg
-            </div>
-          </div>
+      <div className="page-header">
+        <div>
+          <p>Progress</p>
+          <h2>Analysis</h2>
         </div>
-      )
-    )}
+      </div>
 
-</div>
+      <select
+        value={selectedExercise}
+        onChange={(e) => setSelectedExercise(e.target.value)}
+      >
+        <option value="">種目を選択</option>
 
-      {getWeakParts().length > 0 && (
-        <div className="training-card">
-          <h2>💡 Next Workout</h2>
-          <p>おすすめ：{getWeakParts()[0]}</p>
-          <p>最近刺激が少ない部位です</p>
-        </div>
+        {exerciseNames.map((name) => (
+          <option key={name} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+
+      {!selectedExercise && (
+        <p className="empty-text">
+          成長を見たい種目を選択してください。
+        </p>
       )}
 
-      {parts.map((part) => {
-        const count = countPart(part);
-        const percent = (count / maxPartCount()) * 100;
+      {selectedExercise && progress.length === 0 && (
+        <p className="empty-text">
+          この種目の記録がありません。
+        </p>
+      )}
 
-        
+      {selectedExercise && progress.length > 0 && (
+        <div className="line-chart-card">
+          <h3>{selectedExercise}</h3>
 
-        return (
-          <div className="training-card" key={part}>
-            <div className="analysis-row">
-              <h3>{part}</h3>
-              <p>{count}回</p>
-            </div>
+          <div className="simple-line-chart">
+            <svg
+              viewBox="0 0 320 180"
+              className="line-chart-svg"
+            >
+              <polyline
+                fill="none"
+                stroke="#2563eb"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={progress
+                  .map((item, index) => {
+                    const x =
+                      progress.length === 1
+                        ? 160
+                        : (index / (progress.length - 1)) * 280 + 20;
 
-            <div className="bar-bg">
-              <div
-                className="bar-fill"
-                style={{ width: `${percent}%` }}
+                    const y =
+                      160 - (item.weight / maxWeight) * 120;
+
+                    return `${x},${y}`;
+                  })
+                  .join(" ")}
               />
-            </div>
+
+              {progress.map((item, index) => {
+                const x =
+                  progress.length === 1
+                    ? 160
+                    : (index / (progress.length - 1)) * 280 + 20;
+
+                const y =
+                  160 - (item.weight / maxWeight) * 120;
+
+                return (
+                  <circle
+                    key={item.date}
+                    cx={x}
+                    cy={y}
+                    r="5"
+                    fill="#2563eb"
+                  />
+                );
+              })}
+            </svg>
           </div>
-        );
-      })}
+
+          <div className="chart-records">
+            {progress.map((item) => (
+              <div className="chart-record-row" key={item.date}>
+                <span>{item.date}</span>
+                <strong>{item.weight}kg</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -24,8 +24,7 @@ type Props = {
   todayCount: number;
   trained: (part: string) => boolean;
   prs: Record<string, number>;
-  weeklyCount: number;
-  streak: number;
+  
   goTraining: () => void;
   todaySessions: TrainingSession[];
 };
@@ -36,8 +35,7 @@ function Home({
   todaySessions,
   trained,
   prs,
-  weeklyCount,
-  streak,
+  
   goTraining,
 }: Props) {
   return (
@@ -51,49 +49,42 @@ function Home({
         <span>💪</span>
       </div>
 
-      <div className="stats-grid">
-        <div className="training-card stat-card">
-          <h3>This Week 🔥</h3>
-          <h1>{weeklyCount}</h1>
-          <p>workouts</p>
-        </div>
+   
 
-        <div className="training-card stat-card">
-          <h3>🔥 Streak</h3>
-          <h1>{streak}</h1>
-          <p>days</p>
-        </div>
-      </div>
+      <div className="today-section">
 
-      <div className="training-card today-card">
-        <h3>🔥 Today</h3>
-        <p>{today}</p>
-        <p>今日のトレーニング：{todayCount}件</p>
+  <p className="date-text">{today}</p>
 
-        {todaySessions.length === 0 ? (
-          <p className="today-message">
-            今日はまだ記録がありません
-          </p>
-        ) : (
-          todaySessions.map((session) => (
-            <p key={session.id}>
-              {session.title}
-            </p>
-          ))
-        )}
+  <h1>
+    {todayCount}
+    <span> workouts</span>
+  </h1>
 
-        <button onClick={goTraining}>
-          Start Workout
-        </button>
-      </div>
+  {todaySessions.map((session) => (
+    <p 
+      className="today-workout"
+      key={session.id}
+    >
+      {session.title}
+    </p>
+  ))}
 
-      <div className="training-card">
-        <h3>7Days Muscle</h3>
-        <MuscleMap trained={trained} />
-      </div>
+  <button 
+    className="start-button"
+    onClick={goTraining}
+  >
+    Start Training
+  </button>
 
-      <div className="training-card">
-        <h3>🏆 PR</h3>
+</div>
+
+      <section className="home-section">
+  <h3>Body</h3>
+  <MuscleMap trained={trained} />
+</section>
+
+      <section className="home-section">
+  <h3>Personal Records</h3>
 
         {Object.keys(prs).length === 0 ? (
           <p className="empty-text">
@@ -120,8 +111,8 @@ function Home({
 
               </div>
             ))
-        )}
-      </div>
+                )}
+      </section>
     </div>
   );
 }

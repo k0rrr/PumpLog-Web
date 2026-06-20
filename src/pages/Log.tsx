@@ -24,12 +24,6 @@ type TrainingMenu = {
   exercises: string[];
 };
 
-type MenuRecord = {
-  weight: string;
-  reps: string;
-  sets: string;
-};
-
 type Props = {
   todaySessions: TrainingSession[];
   sessions: TrainingSession[];
@@ -52,8 +46,10 @@ type Props = {
   exercises: string[];
   selectedMenu: TrainingMenu | null;
   setSelectedMenu: React.Dispatch<React.SetStateAction<TrainingMenu | null>>;
-  menuRecords: Record<string, MenuRecord>;
-  setMenuRecords: React.Dispatch<React.SetStateAction<Record<string, MenuRecord>>>;
+  menuRecords: Record<string, TrainingSet[]>;
+  setMenuRecords: React.Dispatch<
+    React.SetStateAction<Record<string, TrainingSet[]>>
+  >;
   addExercise: () => void;
   saveMenu: () => void;
   saveMenuRecords: () => void;
@@ -103,6 +99,17 @@ function Log({
   addTrainingSet,
   deleteTrainingSet,
 }: Props) {
+
+  function confirmDeleteMenu(name:string){
+    const ok = window.confirm(
+      `${name}を本当に削除しますか？`
+    );
+
+    if(ok){
+      deleteMenu(name);
+    }
+  }
+
   return (
     <>
       <div className="page-header">
@@ -112,269 +119,331 @@ function Log({
         </div>
       </div>
 
+
       {showMenuManager && (
         <div className="menu-page">
+
           <h1>メニュー作成</h1>
 
           <button
-            className="small-button"
-            onClick={() => {
+            onClick={()=>{
               setShowMenuManager(false);
               setShowAdd(true);
             }}
           >
-            記録画面に戻る
+            戻る
           </button>
 
+
           <input
-            placeholder="メニュー名 例：Pushの日"
+            placeholder="メニュー名"
             value={menuName}
-            onChange={(e) => setMenuName(e.target.value)}
+            onChange={(e)=>setMenuName(e.target.value)}
           />
 
+
           <div className="part-buttons">
-            {parts.map((p) => (
-              <button
-                key={p}
-                className={selectedParts.includes(p) ? "selected" : ""}
-                onClick={() => togglePart(p)}
-              >
-                {p}
-              </button>
-            ))}
+
+          {parts.map((p)=>(
+            <button
+              key={p}
+              className={
+                selectedParts.includes(p)
+                ? "selected"
+                : ""
+              }
+              onClick={()=>togglePart(p)}
+            >
+              {p}
+            </button>
+          ))}
+
           </div>
+
 
           <div className="exercise-add-row">
+
             <input
-              placeholder="種目名 例：ベンチプレス"
+              placeholder="種目"
               value={exerciseName}
-              onChange={(e) => setExerciseName(e.target.value)}
+              onChange={(e)=>setExerciseName(e.target.value)}
             />
 
-            <button onClick={addExercise}>＋</button>
+            <button onClick={addExercise}>
+              ＋
+            </button>
+
           </div>
 
-          {exercises.map((exercise, index) => (
-            <div className="training-card" key={index}>
-              {exercise}
+
+          {exercises.map((e)=>(
+            <div className="training-card" key={e}>
+              {e}
             </div>
           ))}
 
-          <button onClick={saveMenu}>メニュー保存</button>
 
-          <h2>保存済みメニュー</h2>
+          <button onClick={saveMenu}>
+            保存
+          </button>
 
-          {menus.map((menu, index) => (
-            <div className="training-card" key={index}>
+
+          {menus.map((menu)=>(
+            <div className="training-card" key={menu.name}>
+
               <h3>{menu.name}</h3>
-              <p>{menu.parts.join(" / ")}</p>
-              <p>{menu.exercises.join(" / ")}</p>
 
               <button
                 className="delete-button"
-                onClick={() => deleteMenu(menu.name)}
+                onClick={()=>
+                  confirmDeleteMenu(menu.name)
+                }
               >
-                メニュー削除
+                削除
               </button>
+
             </div>
           ))}
+
+
         </div>
       )}
 
+
+
+
       {!showMenuManager && (
-        <>
-          <h2>今日のトレーニング</h2>
+      <>
 
-          {todaySessions.map((session) => (
-            <div className="training-card" key={session.id}>
-              <p className="training-date">{session.date}</p>
-              <h3>{session.title}</h3>
-              <p>{session.parts?.join(" / ")}</p>
 
-              {session.exercises.map((exercise) => (
-                <div key={exercise.id}>
-                  <h4>{exercise.name}</h4>
+      {showAdd && (
 
-                  {exercise.sets.map((set, index) => (
-                    <div key={set.id}>
-                      {editingSessionId === session.id ? (
-                        <div className="edit-record-row">
-                          <p>Set {index + 1}</p>
+        <div className="add-form">
 
-                          <input
-                            value={set.weight}
-                            placeholder="重量"
-                            onChange={(e) =>
-                              updateTrainingSet(
-                                session.id,
-                                exercise.id,
-                                set.id,
-                                "weight",
-                                e.target.value
-                              )
-                            }
-                          />
 
-                          <input
-                            value={set.reps}
-                            placeholder="回数"
-                            onChange={(e) =>
-                              updateTrainingSet(
-                                session.id,
-                                exercise.id,
-                                set.id,
-                                "reps",
-                                e.target.value
-                              )
-                            }
-                          />
+        <h2>メニューから記録</h2>
 
-                          <button
-                            className="delete-button"
-                            onClick={() =>
-                              deleteTrainingSet(session.id, exercise.id, set.id)
-                            }
-                          >
-                            削除
-                          </button>
-                        </div>
-                      ) : (
-                        <p>
-                          Set {index + 1}：{set.weight}kg × {set.reps}回
-                        </p>
-                      )}
-                    </div>
-                  ))}
 
-                  {editingSessionId === session.id && (
-                    <button onClick={() => addTrainingSet(session.id, exercise.id)}>
-                      ＋セット追加
-                    </button>
-                  )}
-                </div>
-              ))}
+        {!selectedMenu && (
+          <>
 
-              <div className="record-actions">
-                {editingSessionId === session.id ? (
-                  <button onClick={() => setEditingSessionId(null)}>完了</button>
-                ) : (
-                  <button onClick={() => setEditingSessionId(session.id)}>
-                    編集
-                  </button>
-                )}
+          <button
+            className="create-menu-button"
+            onClick={()=>
+              setShowMenuManager(true)
+            }
+          >
+            ＋ メニュー作成
+          </button>
 
-                <button
-                  className="delete-button"
-                  onClick={() =>
-                    setSessions(sessions.filter((item) => item.id !== session.id))
-                  }
-                >
-                  削除
-                </button>
-              </div>
+
+          {menus.map((menu)=>(
+            <div
+              className="menu-select-row"
+              key={menu.name}
+            >
+
+              <button
+                className="menu-select-button"
+                onClick={()=>
+                  setSelectedMenu(menu)
+                }
+              >
+                {menu.name}
+              </button>
+
+
+              <button
+                className="menu-delete-button"
+                onClick={()=>
+                  confirmDeleteMenu(menu.name)
+                }
+              >
+                削除
+              </button>
+
             </div>
           ))}
 
-          {showAdd && (
-            <div className="add-form">
-              <h2>メニューから記録</h2>
+          </>
+        )}
 
-              <button
-                className="create-menu-button"
-                onClick={() => setShowMenuManager(true)}
-              >
-                ＋ メニュー作成
-              </button>
 
-              {menus.length === 0 && (
-                <div className="training-card">
-                  <p>まだメニューがありません。</p>
-                </div>
-              )}
 
-              {menus.map((menu, index) => (
-                <div className="menu-select-row" key={index}>
-                  <button
-                    className="menu-select-button"
-                    onClick={() => setSelectedMenu(menu)}
-                  >
-                    {menu.name} / {menu.parts.join(" / ")}
-                  </button>
 
-                  <button
-                    className="menu-delete-button"
-                    onClick={() => deleteMenu(menu.name)}
-                  >
-                    削除
-                  </button>
-                </div>
-              ))}
+        {selectedMenu && (
 
-              {selectedMenu && (
-                <div className="training-card">
-                  <h3>{selectedMenu.name}</h3>
-                  <p>{selectedMenu.parts.join(" / ")}</p>
+        <div className="training-card">
 
-                  {selectedMenu.exercises.map((exercise) => (
-                    <div key={exercise} className="exercise-record">
-                      <h4>{exercise}</h4>
+        <h3>{selectedMenu.name}</h3>
 
-                      <input
-                        placeholder="重量"
-                        value={menuRecords[exercise]?.weight || ""}
-                        onChange={(e) =>
-                          setMenuRecords({
-                            ...menuRecords,
-                            [exercise]: {
-                              ...menuRecords[exercise],
-                              weight: e.target.value,
-                            },
-                          })
-                        }
-                      />
 
-                      <input
-                        placeholder="回数"
-                        value={menuRecords[exercise]?.reps || ""}
-                        onChange={(e) =>
-                          setMenuRecords({
-                            ...menuRecords,
-                            [exercise]: {
-                              ...menuRecords[exercise],
-                              reps: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                  ))}
+        {selectedMenu.exercises.map((exercise)=>{
 
-                  <button onClick={saveMenuRecords}>メニューを記録</button>
-                </div>
-              )}
+        const sets =
+          menuRecords[exercise] || [
+            {
+              id:crypto.randomUUID(),
+              weight:"",
+              reps:"",
+            }
+          ];
 
-              <button
-                onClick={() => {
-                  setShowAdd(false);
-                  setSelectedMenu(null);
-                  setMenuRecords({});
-                }}
-              >
-                閉じる
-              </button>
-            </div>
-          )}
 
-          <div className="start-workout-card">
-            <div>
-              <p>Ready?</p>
-              <h3>Start Workout</h3>
-            </div>
+        return (
 
-            <button onClick={() => setShowAdd(true)}>Start</button>
-          </div>
-        </>
+        <div
+          className="exercise-record"
+          key={exercise}
+        >
+
+
+        {sets.map((set,index)=>(
+
+        <div
+          className="record-set-row"
+          key={set.id}
+        >
+
+
+        <span className="exercise-name-cell">
+          {index===0 ? exercise : ""}
+        </span>
+
+
+        <span>{index+1}</span>
+
+
+        <input
+          placeholder="kg"
+          value={set.weight}
+          onChange={(e)=>
+            setMenuRecords({
+              ...menuRecords,
+              [exercise]:
+              sets.map((item)=>
+                item.id===set.id
+                ?{
+                  ...item,
+                  weight:e.target.value
+                }
+                :item
+              )
+            })
+          }
+        />
+
+
+        <input
+          placeholder="回数"
+          value={set.reps}
+          onChange={(e)=>
+            setMenuRecords({
+              ...menuRecords,
+              [exercise]:
+              sets.map((item)=>
+                item.id===set.id
+                ?{
+                  ...item,
+                  reps:e.target.value
+                }
+                :item
+              )
+            })
+          }
+        />
+
+
+        {index===sets.length-1 && (
+
+        <button
+          className="inline-add-set"
+          onClick={()=>
+            setMenuRecords({
+              ...menuRecords,
+              [exercise]:[
+                ...sets,
+                {
+                  id:crypto.randomUUID(),
+                  weight:"",
+                  reps:"",
+                }
+              ]
+            })
+          }
+        >
+          ＋
+        </button>
+
+        )}
+
+        </div>
+
+        ))}
+
+
+        </div>
+
+        );
+
+        })}
+
+
+        <button onClick={saveMenuRecords}>
+          メニューを記録
+        </button>
+
+
+        </div>
+
+        )}
+
+
+
+        <button
+          onClick={()=>{
+            setShowAdd(false);
+            setSelectedMenu(null);
+            setMenuRecords({});
+          }}
+        >
+          閉じる
+        </button>
+
+
+        </div>
+
       )}
+
+
+
+
+      {!showAdd && (
+
+      <div className="start-workout-card">
+
+        <div>
+          <p>Ready?</p>
+          <h3>Start Workout</h3>
+        </div>
+
+
+        <button
+          onClick={()=>
+            setShowAdd(true)
+          }
+        >
+          Start
+        </button>
+
+      </div>
+
+      )}
+
+
+      </>
+      )}
+
     </>
   );
 }
