@@ -2,11 +2,11 @@
 
 筋トレの記録と成長を可視化するトレーニング記録アプリです。
 ## Screenshots
-
+<p align="center">
 <img src="public/screenshots/home.png" width="250">
 <img src="public/screenshots/training.png" width="250">
 <img src="public/screenshots/analysis.png" width="250">
-
+</p>
 ## URL
 
 https://pump-log-web.vercel.app/
