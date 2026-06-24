@@ -11,6 +11,7 @@ type TrainingExercise = {
   name: string;
   sets: TrainingSet[];
 };
+
 type TrainingSession = {
   id: string;
   title: string;
@@ -23,10 +24,12 @@ type Props = {
   today: string;
   todayCount: number;
   trained: (part: string) => boolean;
-  prs: Record<string, number>;
-  
   goTraining: () => void;
   todaySessions: TrainingSession[];
+
+  weeklyCount: number;
+  weeklyParts: number;
+  weeklyVolume: number;
 };
 
 function Home({
@@ -34,84 +37,75 @@ function Home({
   todayCount,
   todaySessions,
   trained,
-  prs,
-  
   goTraining,
+  weeklyCount,
+  weeklyParts,
+  weeklyVolume,
 }: Props) {
   return (
     <div className="home-page">
       <div className="home-header">
         <div>
           <p>Welcome back</p>
-          <h2>Dashboard</h2>
+          <h2>PumpLog 💪</h2>
         </div>
-
-        <span>💪</span>
       </div>
 
-   
+      <div className="hero-card">
+        <p>Today's Training</p>
 
-      <div className="today-section">
+        <h1>
+          {todayCount}
+          <span> workouts</span>
+        </h1>
 
-  <p className="date-text">{today}</p>
+        <small>{today}</small>
 
-  <h1>
-    {todayCount}
-    <span> workouts</span>
-  </h1>
+        {todaySessions.map((session) => (
+          <div className="recent-row" key={session.id}>
+            🏋️ {session.title}
+          </div>
+        ))}
 
-  {todaySessions.map((session) => (
-    <p 
-      className="today-workout"
-      key={session.id}
-    >
-      {session.title}
+        <button onClick={goTraining}>Start Training</button>
+      </div>
+
+      <section className="home-section">
+
+  <h3>This Week</h3>
+
+
+  <div className="weekly-summary">
+
+  <div className="main-stat">
+    <span>🔥</span>
+
+    <div>
+      <h2>{weeklyCount}</h2>
+      <p>Workouts this week</p>
+    </div>
+  </div>
+
+
+  <div className="summary-row">
+
+    <p>
+      💪 {weeklyParts} parts trained
     </p>
-  ))}
 
-  <button 
-    className="start-button"
-    onClick={goTraining}
-  >
-    Start Training
-  </button>
+    <p>
+      🏋️ {(weeklyVolume / 1000).toFixed(1)}t lifted
+    </p>
+
+  </div>
 
 </div>
 
-      <section className="home-section">
-  <h3>Body</h3>
-  <MuscleMap trained={trained} />
 </section>
 
       <section className="home-section">
-  <h3>Personal Records</h3>
-
-        {Object.keys(prs).length === 0 ? (
-          <p className="empty-text">
-            まだPR記録がありません
-          </p>
-        ) : (
-          Object.entries(prs)
-            .slice(0, 3)
-            .map(([name, weight], index) => (
-              <div className="pr-row" key={name}>
-
-                <span>
-                  {index === 0
-                    ? "🥇"
-                    : index === 1
-                    ? "🥈"
-                    : "🥉"}
-                </span>
-
-                <div>
-                  <h4>{name}</h4>
-                  <p>{weight}kg</p>
-                </div>
-
-              </div>
-            ))
-                )}
+        <h3>Body Map</h3>
+        <MuscleMap trained={trained} />
       </section>
     </div>
   );

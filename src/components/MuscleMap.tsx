@@ -1,84 +1,62 @@
-import { useState } from "react";
-
-type MuscleMapProps = {
-  trained: (partName: string) => boolean;
+type Props = {
+  trained: (part: string) => boolean;
 };
 
-const parts = ["胸", "背中", "肩", "腕", "脚"];
-
-function MuscleMap({ trained }: MuscleMapProps) {
-  const [selectedPart, setSelectedPart] = useState<string | null>(null);
-
-  function muscleClass(part: string, className: string) {
-    return trained(part)
-      ? `muscle ${className} active`
-      : `muscle ${className}`;
-  }
-
+function MuscleMap({ trained }: Props) {
   return (
-    <div className="muscle-model-wrapper">
-      <div className="muscle-model">
-        <div className="shoulder-row">
-          <button
-            className={muscleClass("肩", "shoulder")}
-            onClick={() => setSelectedPart("肩")}
-          />
-          <button
-            className={muscleClass("肩", "shoulder")}
-            onClick={() => setSelectedPart("肩")}
-          />
-        </div>
+    <div className="bodymap-container">
 
-        <div className="upper-body">
-          <button
-            className={muscleClass("腕", "arm left-arm")}
-            onClick={() => setSelectedPart("腕")}
-          />
+      <div className="bodymap">
+        <p>FRONT</p>
 
-          <div className="torso">
-            <button
-              className={muscleClass("胸", "chest")}
-              onClick={() => setSelectedPart("胸")}
-            >
-              胸
-            </button>
+        <div className="body-image">
+          <img src="/bodymap/front.png" />
 
-            <button
-              className={muscleClass("背中", "back")}
-              onClick={() => setSelectedPart("背中")}
-            >
-              背中
-            </button>
-          </div>
+          {trained("胸") && (
+            <img src="/bodymap/front-chest.png" />
+          )}
 
-          <button
-            className={muscleClass("腕", "arm right-arm")}
-            onClick={() => setSelectedPart("腕")}
-          />
-        </div>
+          {trained("肩") && (
+            <img src="/bodymap/front-shoulder.png" />
+          )}
 
-        <div className="legs-row">
-          <button
-            className={muscleClass("脚", "leg")}
-            onClick={() => setSelectedPart("脚")}
-          />
-          <button
-            className={muscleClass("脚", "leg")}
-            onClick={() => setSelectedPart("脚")}
-          />
+          {trained("腕") && (
+            <img src="/bodymap/front-arm.png" />
+          )}
+
+          {trained("脚") && (
+            <img src="/bodymap/front-leg.png" />
+          )}
+
         </div>
       </div>
 
-      {selectedPart && (
-        <div className="muscle-detail-card">
-          <h3>{selectedPart}</h3>
-          <p>
-            {trained(selectedPart)
-              ? "直近7日以内にトレーニング済み"
-              : "直近7日以内の記録なし"}
-          </p>
+
+      <div className="bodymap">
+        <p>BACK</p>
+
+        <div className="body-image">
+          <img src="/bodymap/back.png" />
+
+          {trained("背中") && (
+            <img src="/bodymap/back-back.png" />
+          )}
+
+          {trained("肩") && (
+            <img src="/bodymap/back-shoulder.png" />
+          )}
+
+          {trained("腕") && (
+            <img src="/bodymap/back-arm.png" />
+          )}
+
+          {trained("脚") && (
+            <img src="/bodymap/back-leg.png" />
+          )}
+
         </div>
-      )}
+      </div>
+
     </div>
   );
 }

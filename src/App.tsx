@@ -275,23 +275,7 @@ function App() {
     );
   }
 
-  function getPRs() {
-    const prs: Record<string, number> = {};
 
-    sessions.forEach((session) => {
-      session.exercises.forEach((exercise) => {
-        exercise.sets.forEach((set) => {
-          const weight = Number(set.weight);
-
-          if (!prs[exercise.name] || weight > prs[exercise.name]) {
-            prs[exercise.name] = weight;
-          }
-        });
-      });
-    });
-
-    return prs;
-  }
 
   function getExerciseNames() {
     return [
@@ -336,21 +320,54 @@ function App() {
     const uniqueDates = [...new Set(sessions.map((session) => session.date))];
     return uniqueDates.length;
   }
+  function weeklyVolume() {
+  let total = 0;
 
+  sessions.forEach((session) => {
+    if (!isWithin7Days(session.date)) return;
+
+    session.exercises.forEach((exercise) => {
+      exercise.sets.forEach((set) => {
+        total +=
+          Number(set.weight) *
+          Number(set.reps);
+      });
+    });
+  });
+
+  return total;
+}
+
+
+function weeklyParts() {
+  const trainedParts = new Set<string>();
+
+  sessions.forEach((session) => {
+    if (isWithin7Days(session.date)) {
+      session.parts.forEach((part) => {
+        trainedParts.add(part);
+      });
+    }
+  });
+
+  return trainedParts.size;
+}
   return (
     <div className="app">
       <h1>PumpLog 💪</h1>
 
       {tab === "home" && (
         <Home
-          today={today}
-          todayCount={todaySessions.length}
-          trained={trained}
-          prs={getPRs()}
-          
-          goTraining={() => setTab("training")}
-          todaySessions={todaySessions}
-        />
+  today={today}
+  todayCount={todaySessions.length}
+  trained={trained}
+  goTraining={() => setTab("training")}
+  todaySessions={todaySessions}
+
+  weeklyCount={weeklyCount()}
+  weeklyParts={weeklyParts()}
+  weeklyVolume={weeklyVolume()}
+/>
       )}
 
       {tab === "training" && (
@@ -389,10 +406,11 @@ function App() {
 
       {tab === "analysis" && (
         <Analysis
-          
-          exerciseNames={getExerciseNames()}
-          getExerciseProgress={getExerciseProgress}
-        />
+  exerciseNames={getExerciseNames()}
+  getExerciseProgress={getExerciseProgress}
+  weeklyVolume={weeklyVolume()}
+  weeklyCount={weeklyCount()}
+/>
       )}
 
       {tab === "calendar" && <History groupedSessions={groupedSessions} />}
