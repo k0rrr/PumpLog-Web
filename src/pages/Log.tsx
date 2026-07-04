@@ -125,14 +125,16 @@ function Log({
 
           <h1>メニュー作成</h1>
 
-          <button
-            onClick={()=>{
-              setShowMenuManager(false);
-              setShowAdd(true);
-            }}
-          >
-            戻る
-          </button>
+          <div className="button-right">
+            <button
+              onClick={()=>{
+                setShowMenuManager(false);
+                setShowAdd(true);
+              }}
+            >
+              戻る
+            </button>
+          </div>
 
 
           <input
@@ -183,9 +185,11 @@ function Log({
           ))}
 
 
-          <button onClick={saveMenu}>
-            保存
-          </button>
+          <div className="button-right">
+            <button onClick={saveMenu}>
+              保存
+            </button>
+          </div>
 
 
           {menus.map((menu)=>(
@@ -400,15 +404,17 @@ function Log({
 
 
 
-        <button
-          onClick={()=>{
-            setShowAdd(false);
-            setSelectedMenu(null);
-            setMenuRecords({});
-          }}
-        >
-          閉じる
-        </button>
+        <div className="button-right">
+          <button
+            onClick={()=>{
+              setShowAdd(false);
+              setSelectedMenu(null);
+              setMenuRecords({});
+            }}
+          >
+            閉じる
+          </button>
+        </div>
 
 
         </div>

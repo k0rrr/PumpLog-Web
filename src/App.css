@@ -338,13 +338,28 @@ input::placeholder {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
-.calendar-grid,
-.calendar-week {
+.calendar-header h2 {
+  flex: 1;
+  text-align: center;
+  font-size: 28px;
+}
+
+.calendar-header button {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.calendar-week,
+.calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 7px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
 }
 
 .calendar-week {
@@ -355,19 +370,12 @@ input::placeholder {
 }
 
 .calendar-grid button {
-  height: 42px;
-  background: #14161b;
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-.trained-day {
-  background: var(--accent) !important;
-  color: #111 !important;
-}
-
-.selected-day {
-  outline: 2px solid var(--accent);
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border-radius: 18px;
 }
 
 /* bottom nav */
@@ -811,4 +819,10 @@ to {
 .analysis-summary-card span{
   color:#ef4444;
   font-weight:700;
+}
+
+.button-right {
+  display: flex;
+  justify-content: flex-end;
+  margin: 14px 0;
 }
